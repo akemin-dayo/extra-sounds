@@ -4,14 +4,27 @@ plugins {
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id "com.modrinth.minotaur" version "2.2.0"
     id "org.jetbrains.changelog" version "1.3.1"
+
+    id 'org.ajoberstar.grgit' version '5.0.0'
 }
 
 sourceCompatibility = JavaVersion.VERSION_16
 targetCompatibility = JavaVersion.VERSION_16
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version
+version = "${project.mod_version}${getCurrentGitCommitSha1()}"
 group = project.maven_group
+
+def getCurrentGitCommitSha1() {
+	if (grgit != null) {
+		def gitCommitSha1 = grgit.head().abbreviatedId
+		if (!grgit.status().clean) {
+			gitCommitSha1 += "-dirty"
+		}
+		return "-git-${gitCommitSha1}"
+	}
+	return ""
+}
 
 var modVersion = project.version.split("\\+")[0]
 var versionTitle = "$modVersion for $project.minecraft_version"
